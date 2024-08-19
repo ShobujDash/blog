@@ -10,6 +10,8 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SingUp";
 import OnlyAdminPrivateRoute from "./components/OnlyAdminPrivateRoute";
 import CreatePost from "./pages/CreatePost";
+import PostPage from "./pages/PostPage";
+import UpdatePost from "./pages/UpdatePost";
 
 function App() {
   return (
@@ -25,8 +27,10 @@ function App() {
         </Route>
         <Route  element={<OnlyAdminPrivateRoute />}>
           <Route path="/create-post" element={<CreatePost />} />
+          <Route path="/update-post/:postId" element={<UpdatePost />} />
         </Route>
         <Route path="/projects" element={<Projects />} />
+        <Route path="/post/:postSlug" element={<PostPage />} />
       </Routes>
       <FooterCom />
     </BrowserRouter>

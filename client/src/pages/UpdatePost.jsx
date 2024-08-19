@@ -10,20 +10,20 @@ import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { app } from "../firebase";
-import {useSelector} from 'react-redux'
 
-function UpdatePost() {
+export default function UpdatePost() {
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-  const navigate = useNavigate();
   const { postId } = useParams();
 
-  const { currentUser } = useSelector((store) => store.user);
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     try {
@@ -47,7 +47,7 @@ function UpdatePost() {
     }
   }, [postId]);
 
-  const handleUploadImage = async () => {
+  const handleUpdloadImage = async () => {
     try {
       if (!file) {
         setImageUploadError("Please select an image");
@@ -55,11 +55,9 @@ function UpdatePost() {
       }
       setImageUploadError(null);
       const storage = getStorage(app);
-      const filename = new Date().getTime() + "-" + file.name;
-      const storageRef = ref(storage, filename);
-
+      const fileName = new Date().getTime() + "-" + file.name;
+      const storageRef = ref(storage, fileName);
       const uploadTask = uploadBytesResumable(storageRef, file);
-
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -85,17 +83,21 @@ function UpdatePost() {
       console.log(error);
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("55.", formData._id);
     try {
-      const res = await fetch(`/api/post/updatepost/${formData._id}/${currentUser._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        `/api/post/updatepost/${formData._id}/${currentUser._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
       const data = await res.json();
       if (!res.ok) {
         setPublishError(data.message);
@@ -110,13 +112,10 @@ function UpdatePost() {
       setPublishError("Something went wrong");
     }
   };
-
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
-      <h1 className="text-center text-3xl my-7 font-semibold ">
-        Update a post
-      </h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <h1 className="text-center text-3xl my-7 font-semibold">Update post</h1>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput
             type="text"
@@ -136,23 +135,23 @@ function UpdatePost() {
             value={formData.category}
           >
             <option value="uncategorized">Select a category</option>
-            <option value="javascript">Javascrpt</option>
+            <option value="javascript">JavaScript</option>
             <option value="reactjs">React.js</option>
-            <option value="nextjs">Nextjs</option>
+            <option value="nextjs">Next.js</option>
           </Select>
         </div>
         <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
           <FileInput
-            onChange={(e) => setFile(e.target.files[0])}
             type="file"
             accept="image/*"
+            onChange={(e) => setFile(e.target.files[0])}
           />
           <Button
             type="button"
-            gradiantDuoTone="purpleToBlue"
+            gradientDuoTone="purpleToBlue"
             size="sm"
             outline
-            onClick={handleUploadImage}
+            onClick={handleUpdloadImage}
             disabled={imageUploadProgress}
           >
             {imageUploadProgress ? (
@@ -177,12 +176,15 @@ function UpdatePost() {
         )}
         <ReactQuill
           theme="snow"
-          placeholder="Write something.. "
-          className="h-72 mb-12"
-          onChange={(value) => setFormData({ ...formData, content: value })}
           value={formData.content}
+          placeholder="Write something..."
+          className="h-72 mb-12"
+          required
+          onChange={(value) => {
+            setFormData({ ...formData, content: value });
+          }}
         />
-        <Button type="submit" gradiantDuoTone="purpleToPink">
+        <Button type="submit" gradientDuoTone="purpleToPink">
           Update post
         </Button>
         {publishError && (
@@ -194,5 +196,3 @@ function UpdatePost() {
     </div>
   );
 }
-
-export default UpdatePost;
