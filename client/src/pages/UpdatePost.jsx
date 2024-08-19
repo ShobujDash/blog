@@ -25,8 +25,6 @@ function UpdatePost() {
 
   const { currentUser } = useSelector((store) => store.user);
 
-  console.log(formData)
-
 
   useEffect(() => {
     try {
