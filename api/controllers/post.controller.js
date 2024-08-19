@@ -79,10 +79,11 @@ export const deletepost = async (req, res, next) => {
   }
 }
 
-export const updatepost = async (req,res,next) =>{
-    if (!req.user.isAdmin || req.user.id !== req.params.userId) {
-      return next(403, "You are not allowed to update this post");
-    }
+
+export const updatepost = async (req, res, next) => {
+  if (!req.user.isAdmin || req.user.id !== req.params.userId) {
+    return next(403, "You are not allowed to update this post");
+  }
   try {
     const updatedPost = await Post.findByIdAndUpdate(
       req.params.postId,
@@ -96,9 +97,8 @@ export const updatepost = async (req,res,next) =>{
       },
       { new: true }
     );
-    res.status(200).json(updatedPost)
-    
+    res.status(200).json(updatedPost);
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
