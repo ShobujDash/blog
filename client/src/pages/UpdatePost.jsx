@@ -25,6 +25,7 @@ export default function UpdatePost() {
   const navigate = useNavigate();
   const { currentUser } = useSelector((state) => state.user);
 
+
   useEffect(() => {
     try {
       const fetchPost = async () => {
