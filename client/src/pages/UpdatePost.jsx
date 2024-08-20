@@ -14,22 +14,23 @@ import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { app } from "../firebase";
 
-export default function UpdatePost() {
+function UpdatePost() {
   const [file, setFile] = useState(null);
   const [imageUploadProgress, setImageUploadProgress] = useState(null);
   const [imageUploadError, setImageUploadError] = useState(null);
   const [formData, setFormData] = useState({});
   const [publishError, setPublishError] = useState(null);
-  const { postId } = useParams();
-
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
+  const { postId } = useParams();
+  const { currentUser } = useSelector((store) => store.user);
 
   useEffect(() => {
     try {
       const fetchPost = async () => {
         const res = await fetch(`/api/post/getposts?postId=${postId}`);
+
         const data = await res.json();
+
         if (!res.ok) {
           console.log(data.message);
           setPublishError(data.message);
@@ -40,14 +41,13 @@ export default function UpdatePost() {
           setFormData(data.posts[0]);
         }
       };
-
       fetchPost();
     } catch (error) {
       console.log(error.message);
     }
   }, [postId]);
 
-  const handleUpdloadImage = async () => {
+  const handleUploadImage = async () => {
     try {
       if (!file) {
         setImageUploadError("Please select an image");
@@ -55,9 +55,11 @@ export default function UpdatePost() {
       }
       setImageUploadError(null);
       const storage = getStorage(app);
-      const fileName = new Date().getTime() + "-" + file.name;
-      const storageRef = ref(storage, fileName);
+      const filename = new Date().getTime() + "-" + file.name;
+      const storageRef = ref(storage, filename);
+
       const uploadTask = uploadBytesResumable(storageRef, file);
+
       uploadTask.on(
         "state_changed",
         (snapshot) => {
@@ -73,7 +75,7 @@ export default function UpdatePost() {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             setImageUploadProgress(null);
             setImageUploadError(null);
-            setFormData({ ...formData, image: downloadURL });
+            setFormData({...formData, image: downloadURL });
           });
         }
       );
@@ -83,10 +85,12 @@ export default function UpdatePost() {
       console.log(error);
     }
   };
-  
+  console.log(formData)
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("55.", formData._id);
+    console.log(formData)
+    console.log(formData._id)
     try {
       const res = await fetch(
         `/api/post/updatepost/${formData._id}/${currentUser._id}`,
@@ -112,10 +116,11 @@ export default function UpdatePost() {
       setPublishError("Something went wrong");
     }
   };
+
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
-      <h1 className="text-center text-3xl my-7 font-semibold">Update post</h1>
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <h1 className="text-center text-3xl my-7 font-semibold ">Update post</h1>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput
             type="text"
@@ -124,34 +129,34 @@ export default function UpdatePost() {
             id="title"
             className="flex-1"
             onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
+              setFormData({...formData, title: e.target.value })
             }
             value={formData.title}
           />
           <Select
             onChange={(e) =>
-              setFormData({ ...formData, category: e.target.value })
+              setFormData({...formData, category: e.target.value })
             }
             value={formData.category}
           >
             <option value="uncategorized">Select a category</option>
-            <option value="javascript">JavaScript</option>
+            <option value="javascript">Javascrpt</option>
             <option value="reactjs">React.js</option>
-            <option value="nextjs">Next.js</option>
+            <option value="nextjs">Nextjs</option>
           </Select>
         </div>
         <div className="flex gap-4 items-center justify-between border-4 border-teal-500 border-dotted p-3">
           <FileInput
+            onChange={(e) => setFile(e.target.files[0])}
             type="file"
             accept="image/*"
-            onChange={(e) => setFile(e.target.files[0])}
           />
           <Button
             type="button"
-            gradientDuoTone="purpleToBlue"
+            gradiantDuoTone="purpleToBlue"
             size="sm"
             outline
-            onClick={handleUpdloadImage}
+            onClick={handleUploadImage}
             disabled={imageUploadProgress}
           >
             {imageUploadProgress ? (
@@ -177,15 +182,17 @@ export default function UpdatePost() {
         <ReactQuill
           theme="snow"
           value={formData.content}
-          placeholder="Write something..."
+          placeholder="Write something.. "
           className="h-72 mb-12"
-          required
-          onChange={(value) => {
-            setFormData({ ...formData, content: value });
-          }}
+          // onChange={(value)=>setFormData({...formData,content:value})}
+          onChange={(value) =>
+            setFormData((prevFormData) => ({
+              ...prevFormData,
+              content: value,
+            }))}
         />
-        <Button type="submit" gradientDuoTone="purpleToPink">
-          Update post
+        <Button type="submit" gradiantDuoTone="purpleToPink">
+          Update Post
         </Button>
         {publishError && (
           <Alert className="mt-5" color="failure">
@@ -196,3 +203,5 @@ export default function UpdatePost() {
     </div>
   );
 }
+
+export default UpdatePost;
