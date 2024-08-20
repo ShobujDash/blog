@@ -24,6 +24,7 @@ function UpdatePost() {
   const { postId } = useParams();
   const { currentUser } = useSelector((store) => store.user);
 
+
   useEffect(() => {
     try {
       const fetchPost = async () => {
