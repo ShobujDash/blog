@@ -3,7 +3,6 @@ import FooterCom from "./components/Footer";
 import Header from "./components/Header";
 import PrivateRoute from "./components/PrivateRoute";
 import About from "./pages/About";
-import Dashboard from "./pages/DashBoard";
 import Home from "./pages/Home";
 import Projects from "./pages/Projects";
 import SignIn from "./pages/SignIn";
@@ -14,6 +13,7 @@ import PostPage from "./pages/PostPage";
 import UpdatePost from "./pages/UpdatePost";
 import ScrollToTap from "./components/ScrollToTap";
 import Search from "./pages/Search";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
